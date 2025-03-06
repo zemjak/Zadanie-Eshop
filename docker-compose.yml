@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  ### MongoDB
+  mongodb:
+    image: mongo:6.0
+    container_name: eshop-mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    command: ["--replSet", "rs0"]  # Enable replica set for transaction support
+    volumes:
+      - mongodb_data:/data/db
+      - mongodb_config:/data/configdb
+
+  ### Flask Backend
+  backend:
+    build: ./ZadanieEshopApi
+    container_name: eshop-backend
+    restart: always
+    depends_on:
+      - mongodb
+    ports:
+      - "5000:5000"
+    environment:
+      FLASK_ENV: development
+      SECRET_KEY: 2224bfd0f2e43d01b28830a1f1ead1fd7e939357e0c3d4f629aa050f455bfa2a
+      DATABASE_URL: mongodb://localhost:27017/
+      DATABASE_NAME: BartEshopDatabase
+    volumes:
+      - ./ZadanieEshopApi:/app
+    entrypoint: ["/app/docker-entrypoint.sh"]
+
+  ### React + Vite Frontend
+  frontend:
+    build: ./ZadanieEshopFrontend
+    container_name: eshop-frontend
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./ZadanieEshopFrontend:/app
+    command: ["npm", "run", "dev"]
+
+volumes:
+  mongodb_data:
+  mongodb_config:
+
