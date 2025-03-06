@@ -340,7 +340,7 @@ function ProfileScreen() {
                           color="primary"
                           style={{ marginTop: "10px" }}
                         >
-                          {order.total_price}€
+                          {order.total_price.toFixed(2)}€
                         </Typography>
                       </Grid>
                       <Grid
